@@ -1,0 +1,59 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: '3.1'
+services:
+    mysql:
+        image: 'mysql:8.0'
+        working_dir: /application
+        volumes:
+            - '/docker/php:/application'
+        environment:
+            - MYSQL_ROOT_PASSWORD=bolson
+            - MYSQL_DATABASE=frontera
+            - MYSQL_USER=bolson
+            - MYSQL_PASSWORD=bolson
+        ports:
+            - '32002:3306'
+        networks:
+          lan:
+            ipv4_address: 192.168.150.10
+
+    webserver:
+        image: 'nginx:alpine'
+        working_dir: /application
+        volumes:
+            - '/docker/php:/application'
+            - './phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf'
+        ports:
+            - '4000:80'
+        networks:
+          wan:
+              ipv4_address: 192.168.250.10
+          lan:
+              ipv4_address: 192.168.150.11
+
+    php-fpm:
+        build: phpdocker/php-fpm
+        working_dir: /application
+        volumes:
+            - '/docker/php:/application'
+            - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.1/fpm/conf.d/99-overrides.ini'
+        networks:
+            lan:
+                ipv4_address: 192.168.150.12
+
+networks:
+  wan:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.250.0/24
+
+  lan:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.150.0/24
