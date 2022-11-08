@@ -1,0 +1,3 @@
+FROM bytmark/webdav
+RUN touch "var/lib/dav/ejemplo.txt
+VOLUME /docker/webdav
